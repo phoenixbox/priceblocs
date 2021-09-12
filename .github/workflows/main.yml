@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       # Runs a single command using the runners shell
-      - name: Run a one-line script
+      - name: Build package
         run: npm run build rollup.config.js --if-present
   publish:
     if: github.ref == 'refs/heads/main'
@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       # Runs a single command using the runners shell
-      - name: Run a one-line script
+      - name: Build package
         run: npm run build rollup.config.js --if-present
       - name: Publish
         run: |
