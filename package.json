@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "PriceBlocs context components",
   "author": "phoenixbox",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "repository": "phoenixbox/priceblocs",
   "main": "dist/index.js",
   "engines": {
