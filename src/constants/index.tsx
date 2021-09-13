@@ -1,7 +1,4 @@
-const API_ROOT =
-  process.env.NODE_ENV === 'production'
-    ? 'https://api.priceblocs.com'
-    : 'http://localhost:9000'
+const API_ROOT = 'https://api.priceblocs.com'
 
 export const URLS = {
   PRICING: `${API_ROOT}/v1/config/pricing`,
