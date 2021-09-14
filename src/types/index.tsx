@@ -1,5 +1,7 @@
 import { Stripe } from '@stripe/stripe-js'
+
 export interface IFetchConfigParams {
+  prices?: string[]
   customer?: string
   email?: string
 }
@@ -14,13 +16,15 @@ export interface IMetadata {
 
 export interface ICheckoutData {
   prices: [string]
-  cancelUrl: string
+  cancel_url: string
   id?: string
+  session?: string
 }
 
 export interface IPriceBlocsContextProps {
   children: React.ReactNode
   apiKey: string
+  prices?: string[]
   customer?: string
   email?: string
 }

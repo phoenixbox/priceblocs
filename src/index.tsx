@@ -54,10 +54,17 @@ const getAuthHeaders = (apiKey: string): IAuthHeaders => ({
 })
 
 const fetchConfig = async (apiKey: string, params: IFetchConfigParams) => {
-  let queryParams = []
+  let queryParams = [] as string[]
   for (const key in params) {
-    if (params[key]) {
-      queryParams.push(`${key}=${params[key]}`)
+    const value = params[key]
+    if (value) {
+      if (Array.isArray(value)) {
+        value.forEach((val) => {
+          queryParams.push(`${key}[]=${val}`)
+        })
+      } else {
+        queryParams.push(`${key}=${value}`)
+      }
     }
   }
   const queryString = queryParams.join('&')
@@ -134,7 +141,7 @@ export const {
 } = createUseContext(
   (Provider: IPriceBlocsProvider) =>
     (contextProps: IPriceBlocsContextProps): any => {
-      const { children, apiKey, customer, email } = contextProps
+      const { children, apiKey, customer, email, prices } = contextProps
       const [metadata, setMetadata] = React.useState<IMetadata | undefined>()
       const [values, setValues] = React.useState<IValues | undefined>()
       const [loading, setLoading] = React.useState(false)
@@ -149,6 +156,7 @@ export const {
           const { data, ...remainder } = await fetchConfig(apiKey, {
             customer,
             email,
+            prices,
           })
 
           setMetadata(remainder)
@@ -167,7 +175,7 @@ export const {
         if (stripe) {
           const checkoutData = {
             prices,
-            cancelUrl: window.location.href,
+            cancel_url: window.location.href,
           } as ICheckoutData
           if (metadata) {
             checkoutData.id = metadata.id
