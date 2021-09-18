@@ -122,11 +122,11 @@ export const {
         if (!loading) {
           setLoading(true)
           try {
-            const fetchProps = {
+            const fetchData = {
               ...commonCustomerParams,
               prices,
             } as IFetchConfigParams
-            const { data, ...remainder } = await fetchConfig(apiKey, fetchProps)
+            const { data, ...remainder } = await fetchConfig(apiKey, fetchData)
 
             setMetadata(remainder)
             setValues(data)
