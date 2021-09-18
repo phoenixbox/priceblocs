@@ -53,13 +53,16 @@ export interface IRecurring {
 }
 
 export interface IPrice {
+  id: string
   currency: string
   recurring: IRecurring | null
 }
 
 export interface IProduct {
   id: string
-  prices: IPrice[]
+  name: string
+  description?: string
+  prices?: IPrice[]
 }
 
 export interface IHighlight {
@@ -147,4 +150,50 @@ export interface IWithStripeContextProps {
 
 export interface IAuthHeaders {
   [key: string]: string
+}
+
+export interface IProductConfig {
+  [key: string]: {
+    enabled: boolean
+  } | null
+}
+
+export interface IFeature {
+  title: string
+  tooltip: string | null
+  product_config: IProductConfig
+}
+
+export interface IFeatureGroup {
+  title: string
+  features: IFeature[]
+}
+
+export interface IFeatureTableHeader {
+  id: string
+  title: string
+}
+
+export interface IFeatureTableGroupColumn {
+  header: string
+  accessor?: string
+}
+
+export interface IFeatureTableGroupRowTitle {
+  value: string
+  tooltip: string
+}
+
+export interface IFeatureTableGroupRow {
+  [key: string]: IProductConfig | null | IFeatureTableGroupRowTitle | boolean
+}
+
+export interface IFeatureTableGroup {
+  columns: IFeatureTableGroupColumn[]
+  rows: IFeatureTableGroupRow[]
+}
+
+export interface IProductsFeatureTable {
+  header: IFeatureTableHeader[]
+  groups: IFeatureTableGroup[]
 }

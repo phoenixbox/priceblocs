@@ -18,6 +18,7 @@ import {
 } from './types'
 import { fetchConfig, createSession, prepareCheckoutData } from './request'
 import * as Hooks from './hooks'
+import * as Utils from './utils'
 
 const createUseContext = (
   contextProviderWrapperCreator: (
@@ -221,4 +222,14 @@ export const {
     }
 )
 
+/**
+ * Hooks
+ */
 export const useActiveProductPrice = Hooks.useActiveProductPrice
+
+/**
+ * Utils
+ */
+export const getActiveProductPrice = Utils.getActiveProductPrice
+export const getProductFeatures = Utils.getProductFeatures
+export const getProductsFeaturesTable = Utils.getProductsFeaturesTable
