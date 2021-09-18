@@ -1,3 +1,4 @@
+import * as React from 'react'
 import { Stripe } from '@stripe/stripe-js'
 
 export interface ICustomerParams {
@@ -47,6 +48,20 @@ export interface IAdmin {
   clientKey: string
 }
 
+export interface IRecurring {
+  interval: string
+}
+
+export interface IPrice {
+  currency: string
+  recurring: IRecurring | null
+}
+
+export interface IProduct {
+  id: string
+  prices: IPrice[]
+}
+
 export interface IHighlight {
   price?: string
   product?: string
@@ -81,6 +96,7 @@ export interface IFormData {
 export interface IValues {
   admin: IAdmin
   form: IFormData
+  products: IProduct[]
 }
 
 export interface IErrors {
@@ -98,6 +114,13 @@ export interface IPriceBlocsProviderValue {
   setFieldValue: (path: string, value: any) => any
   refetch: () => void
   checkout: ({ prices }: ICheckoutProps, stripe: Stripe | null) => void
+}
+
+export interface IPriceBlocsContext {
+  Context: React.Context<null>
+  ContextProvider: IPriceBlocsProvider | React.Provider<null>
+  ContextConsumer: React.Consumer<null>
+  useContext: () => IPriceBlocsProviderValue
 }
 
 export interface IPriceBlocsProvider extends React.FC {

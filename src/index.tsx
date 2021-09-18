@@ -14,14 +14,16 @@ import {
   IWithStripeContextProps,
   ICustomerParams,
   IFetchConfigParams,
+  IPriceBlocsContext,
 } from './types'
 import { fetchConfig, createSession, prepareCheckoutData } from './request'
+import * as Hooks from './hooks'
 
-export const createUseContext = (
+const createUseContext = (
   contextProviderWrapperCreator: (
     provider: IPriceBlocsProvider
   ) => IPriceBlocsProvider
-) => {
+): IPriceBlocsContext => {
   const Context = React.createContext<null>(null)
   const useContext = () => React.useContext(Context)
   let ContextProvider
@@ -218,3 +220,5 @@ export const {
       )
     }
 )
+
+export const useActiveProductPrice = Hooks.useActiveProductPrice
