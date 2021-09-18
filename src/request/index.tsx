@@ -68,5 +68,13 @@ export const prepareCheckoutData = (props: ICheckoutProps): ICheckoutData => {
     result.return_url = props.return_url
   }
 
+  if (props.customer) {
+    result.customer = props.customer
+  } else if (props.email) {
+    result.email = props.email
+  } else if (props.customer_email) {
+    result.customer_email = props.customer_email
+  }
+
   return result
 }
