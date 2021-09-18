@@ -1,7 +1,15 @@
 import { Stripe } from '@stripe/stripe-js'
-export interface IFetchConfigParams {
+
+export interface ICustomerParams {
   customer?: string
+  customer_email?: string
   email?: string
+}
+
+export interface IFetchConfigParams extends ICustomerParams {
+  prices?: string[]
+  id?: string
+  session?: string
 }
 
 export interface ICheckoutProps {
@@ -12,17 +20,22 @@ export interface IMetadata {
   id: string
 }
 
-export interface ICheckoutData {
+export interface ICheckoutData extends ICustomerParams {
   prices: [string]
-  cancelUrl: string
+  cancel_url: string
+  success_url?: string
+  return_url?: string
   id?: string
+  session?: string
 }
 
-export interface IPriceBlocsContextProps {
+export interface IPriceBlocsContextProps extends ICustomerParams {
   children: React.ReactNode
   apiKey: string
-  customer?: string
-  email?: string
+  prices?: string[]
+  success_url?: string
+  cancel_url?: string
+  return_url?: string
 }
 
 export interface IAdmin {

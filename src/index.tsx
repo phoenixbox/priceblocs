@@ -2,7 +2,6 @@ import * as React from 'react'
 import { Elements, useStripe } from '@stripe/react-stripe-js'
 import { loadStripe, Stripe } from '@stripe/stripe-js'
 import {
-  IFetchConfigParams,
   ICheckoutProps,
   IMetadata,
   ICheckoutData,
@@ -13,18 +12,11 @@ import {
   IPriceBlocsProvider,
   IStripeElementContextProps,
   IWithStripeContextProps,
-  IAuthHeaders,
+  ICustomerParams,
+  IFetchConfigParams,
 } from './types'
-import { URLS, METHODS } from './constants'
+import { fetchConfig, createSession } from './request'
 
-/**
- * ================================
- * Standard context setup
- * ================================
- * - Setup standard context providers and get values hooks
- * - Init with account api keys and optional customer context
- * - Set the response in shared state to be used within any connected component
- */
 export const createUseContext = (
   contextProviderWrapperCreator: (
     provider: IPriceBlocsProvider
@@ -46,39 +38,6 @@ export const createUseContext = (
     ContextConsumer: Context.Consumer,
     useContext,
   }
-}
-
-const getAuthHeaders = (apiKey: string): IAuthHeaders => ({
-  'Content-Type': 'application/json',
-  Authorization: `Bearer ${apiKey}`,
-})
-
-const fetchConfig = async (apiKey: string, params: IFetchConfigParams) => {
-  let queryParams = []
-  for (const key in params) {
-    if (params[key]) {
-      queryParams.push(`${key}=${params[key]}`)
-    }
-  }
-  const queryString = queryParams.join('&')
-  const url = queryString ? `${URLS.PRICING}?${queryString}` : URLS.PRICING
-
-  const response = await fetch(url, {
-    method: METHODS.GET,
-    headers: getAuthHeaders(apiKey),
-  })
-
-  return response.json()
-}
-
-const createSession = async (apiKey: string, data: ICheckoutData) => {
-  const response = await fetch(URLS.CHECKOUT, {
-    method: METHODS.POST,
-    headers: getAuthHeaders(apiKey),
-    body: JSON.stringify(data),
-  })
-
-  return response.json()
 }
 
 const WithStripeContext = ({
@@ -134,7 +93,17 @@ export const {
 } = createUseContext(
   (Provider: IPriceBlocsProvider) =>
     (contextProps: IPriceBlocsContextProps): any => {
-      const { children, apiKey, customer, email } = contextProps
+      const {
+        children,
+        apiKey,
+        customer,
+        email,
+        customer_email,
+        success_url,
+        cancel_url,
+        return_url,
+        prices,
+      } = contextProps
       const [metadata, setMetadata] = React.useState<IMetadata | undefined>()
       const [values, setValues] = React.useState<IValues | undefined>()
       const [loading, setLoading] = React.useState(false)
@@ -143,13 +112,20 @@ export const {
       const [errors, setErrors] = React.useState<IErrors | null>(null)
       const clientKey = values && values.admin && values.admin.clientKey
 
+      const commonCustomerParams = {
+        customer,
+        customer_email,
+        email,
+      } as ICustomerParams
+
       const fetchData = async () => {
         setLoading(true)
         try {
-          const { data, ...remainder } = await fetchConfig(apiKey, {
-            customer,
-            email,
-          })
+          const fetchProps = {
+            ...commonCustomerParams,
+            prices,
+          } as IFetchConfigParams
+          const { data, ...remainder } = await fetchConfig(apiKey, fetchProps)
 
           setMetadata(remainder)
           setValues(data)
@@ -166,28 +142,39 @@ export const {
       const checkout = async ({ prices }: ICheckoutProps, stripe: Stripe) => {
         if (stripe) {
           const checkoutData = {
+            ...commonCustomerParams,
             prices,
-            cancelUrl: window.location.href,
           } as ICheckoutData
-          if (metadata) {
+          if (metadata && metadata.id) {
             checkoutData.id = metadata.id
+          }
+          if (success_url) {
+            checkoutData.success_url = success_url
+          }
+          if (cancel_url) {
+            checkoutData.cancel_url = cancel_url
+          } else {
+            checkoutData.cancel_url = window.location.href
+          }
+          if (return_url) {
+            checkoutData.return_url = return_url
           }
 
           setIsSubmitting(true)
           try {
             const response = await createSession(apiKey, checkoutData)
 
-            if (stripe) {
-              stripe.redirectToCheckout({
-                sessionId: response.id,
-              })
-            } else {
-              console.error('No Stripe for price checkout')
-            }
+            stripe.redirectToCheckout({
+              sessionId: response.id,
+            })
           } catch (err) {
             setErrors({ config: err })
           }
           setIsSubmitting(false)
+        } else {
+          console.error(
+            'Stripe is not initialized - ensure you have passed a valid API key'
+          )
         }
       }
 
