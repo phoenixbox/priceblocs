@@ -7,6 +7,7 @@ export interface ICustomerParams {
 }
 
 export interface IFetchConfigParams extends ICustomerParams {
+  [key: string]: string | string[]
   prices?: string[]
   id?: string
   session?: string
@@ -29,6 +30,10 @@ export interface ICheckoutData extends ICustomerParams {
   session?: string
 }
 
+export interface ICheckoutProps extends ICheckoutData {
+  metadata: IMetadata
+}
+
 export interface IPriceBlocsContextProps extends ICustomerParams {
   children: React.ReactNode
   apiKey: string
@@ -42,8 +47,40 @@ export interface IAdmin {
   clientKey: string
 }
 
+export interface IHighlight {
+  price?: string
+  product?: string
+  label?: string
+  style?: string
+}
+
+export interface IPresentation {
+  interval?: string
+  license?: string
+}
+
+export interface IColors {
+  primary?: string
+}
+
+export interface ITheme {
+  colors?: IColors
+  license?: string
+}
+
+export interface IFormData {
+  currencies: string[]
+  currency: string
+  intervals: string[]
+  interval: string
+  highlight: IHighlight
+  theme: ITheme
+  presentation: IPresentation
+}
+
 export interface IValues {
   admin: IAdmin
+  form: IFormData
 }
 
 export interface IErrors {
@@ -58,6 +95,7 @@ export interface IPriceBlocsProviderValue {
   metadata?: IMetadata | null
   errors?: IErrors
   setValues: (values: IValues) => void
+  setFieldValue: (path: string, value: any) => any
   refetch: () => void
   checkout: ({ prices }: ICheckoutProps, stripe: Stripe | null) => void
 }

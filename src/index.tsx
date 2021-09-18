@@ -1,10 +1,10 @@
 import * as React from 'react'
+import { clone, set } from 'lodash'
 import { Elements, useStripe } from '@stripe/react-stripe-js'
 import { loadStripe, Stripe } from '@stripe/stripe-js'
 import {
   ICheckoutProps,
   IMetadata,
-  ICheckoutData,
   IPriceBlocsContextProps,
   IValues,
   IErrors,
@@ -15,7 +15,7 @@ import {
   ICustomerParams,
   IFetchConfigParams,
 } from './types'
-import { fetchConfig, createSession } from './request'
+import { fetchConfig, createSession, prepareCheckoutData } from './request'
 
 export const createUseContext = (
   contextProviderWrapperCreator: (
@@ -135,30 +135,26 @@ export const {
         setLoading(false)
       }
 
+      const setFieldValue = (path: string, value: any) => {
+        const updatedValues = clone(values)
+        set(updatedValues as IValues, path, value)
+        setValues(updatedValues)
+      }
+
       React.useEffect(() => {
         fetchData()
       }, [])
 
       const checkout = async ({ prices }: ICheckoutProps, stripe: Stripe) => {
         if (stripe) {
-          const checkoutData = {
+          const checkoutData = prepareCheckoutData({
             ...commonCustomerParams,
             prices,
-          } as ICheckoutData
-          if (metadata && metadata.id) {
-            checkoutData.id = metadata.id
-          }
-          if (success_url) {
-            checkoutData.success_url = success_url
-          }
-          if (cancel_url) {
-            checkoutData.cancel_url = cancel_url
-          } else {
-            checkoutData.cancel_url = window.location.href
-          }
-          if (return_url) {
-            checkoutData.return_url = return_url
-          }
+            success_url,
+            cancel_url,
+            return_url,
+            metadata,
+          })
 
           setIsSubmitting(true)
           try {
@@ -183,6 +179,7 @@ export const {
         loading,
         isSubmitting,
         setValues,
+        setFieldValue,
         refetch: fetchData,
         checkout,
       }
