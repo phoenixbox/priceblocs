@@ -112,9 +112,6 @@ export const {
       const [errors, setErrors] = React.useState<IErrors | null>(null)
       const clientKey = values && values.admin && values.admin.clientKey
 
-      /**
-       * Ensure that these are not shared
-       */
       const commonCustomerParams = {
         customer,
         customer_email,
