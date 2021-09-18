@@ -35,7 +35,7 @@ export interface ICheckoutProps extends ICheckoutData {
 }
 
 export interface IPriceBlocsContextProps extends ICustomerParams {
-  children: React.ReactNode
+  children: React.ReactNode | ((props: IPriceBlocsProviderValue) => any)
   apiKey: string
   prices?: string[]
   success_url?: string

@@ -119,20 +119,22 @@ export const {
       } as ICustomerParams
 
       const fetchData = async () => {
-        setLoading(true)
-        try {
-          const fetchProps = {
-            ...commonCustomerParams,
-            prices,
-          } as IFetchConfigParams
-          const { data, ...remainder } = await fetchConfig(apiKey, fetchProps)
+        if (!loading) {
+          setLoading(true)
+          try {
+            const fetchProps = {
+              ...commonCustomerParams,
+              prices,
+            } as IFetchConfigParams
+            const { data, ...remainder } = await fetchConfig(apiKey, fetchProps)
 
-          setMetadata(remainder)
-          setValues(data)
-        } catch (err) {
-          setErrors({ config: err })
+            setMetadata(remainder)
+            setValues(data)
+          } catch (err) {
+            setErrors({ config: err })
+          }
+          setLoading(false)
         }
-        setLoading(false)
       }
 
       const setFieldValue = (path: string, value: any) => {
@@ -146,32 +148,36 @@ export const {
       }, [])
 
       const checkout = async ({ prices }: ICheckoutProps, stripe: Stripe) => {
-        if (stripe) {
-          const checkoutData = prepareCheckoutData({
-            ...commonCustomerParams,
-            prices,
-            success_url,
-            cancel_url,
-            return_url,
-            metadata,
-          })
-
-          setIsSubmitting(true)
-          try {
-            const response = await createSession(apiKey, checkoutData)
-
-            stripe.redirectToCheckout({
-              sessionId: response.id,
-            })
-          } catch (err) {
-            setErrors({ config: err })
-          }
-          setIsSubmitting(false)
-        } else {
+        if (!stripe) {
           console.error(
             'Stripe is not initialized - ensure you have passed a valid API key'
           )
+          return
         }
+        if (isSubmitting) {
+          console.warn('Checkout in progress')
+          return
+        }
+        const checkoutData = prepareCheckoutData({
+          ...commonCustomerParams,
+          prices,
+          success_url,
+          cancel_url,
+          return_url,
+          metadata,
+        })
+
+        setIsSubmitting(true)
+        try {
+          const response = await createSession(apiKey, checkoutData)
+
+          stripe.redirectToCheckout({
+            sessionId: response.id,
+          })
+        } catch (err) {
+          setErrors({ config: err })
+        }
+        setIsSubmitting(false)
       }
 
       const providerValue: IPriceBlocsProviderValue = {
@@ -193,6 +199,9 @@ export const {
         providerValue.errors = errors
       }
 
+      const content =
+        typeof children === 'function' ? children(providerValue) : children
+
       return clientKey ? (
         <StripeElementContainer
           ready={ready}
@@ -201,11 +210,11 @@ export const {
           providerValue={providerValue}
           Provider={Provider}
         >
-          {children}
+          {content}
         </StripeElementContainer>
       ) : (
         // @ts-ignore
-        <Provider value={providerValue}>{children}</Provider>
+        <Provider value={providerValue}>{content}</Provider>
       )
     }
 )
