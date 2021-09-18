@@ -115,7 +115,7 @@ export const {
       /**
        * Ensure that these are not shared
        */
-      const commonCheckoutProps = {
+      const commonCustomerParams = {
         customer,
         customer_email,
         email,
@@ -125,7 +125,7 @@ export const {
         setLoading(true)
         try {
           const fetchProps = {
-            ...commonCheckoutProps,
+            ...commonCustomerParams,
             prices,
           } as IFetchConfigParams
           const { data, ...remainder } = await fetchConfig(apiKey, fetchProps)
@@ -145,6 +145,7 @@ export const {
       const checkout = async ({ prices }: ICheckoutProps, stripe: Stripe) => {
         if (stripe) {
           const checkoutData = {
+            ...commonCustomerParams,
             prices,
           } as ICheckoutData
           if (metadata && metadata.id) {
