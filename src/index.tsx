@@ -14,14 +14,18 @@ import {
   IWithStripeContextProps,
   ICustomerParams,
   IFetchConfigParams,
+  IPriceBlocsContext,
 } from './types'
 import { fetchConfig, createSession, prepareCheckoutData } from './request'
+import * as Hooks from './hooks'
+import * as Utils from './utils'
+import * as Constants from './constants'
 
-export const createUseContext = (
+const createUseContext = (
   contextProviderWrapperCreator: (
     provider: IPriceBlocsProvider
   ) => IPriceBlocsProvider
-) => {
+): IPriceBlocsContext => {
   const Context = React.createContext<null>(null)
   const useContext = () => React.useContext(Context)
   let ContextProvider
@@ -218,3 +222,22 @@ export const {
       )
     }
 )
+
+/**
+ * Hooks
+ */
+export const useActiveProductPrice = Hooks.useActiveProductPrice
+
+/**
+ * Utils
+ */
+export const getActiveProductPrice = Utils.getActiveProductPrice
+export const getProductFeatures = Utils.getProductFeatures
+export const getProductsFeaturesTable = Utils.getProductsFeaturesTable
+
+/**
+ * Constants
+ */
+export const RECURRING_INTERVALS = Constants.RECURRING_INTERVALS
+export const INTERVAL_LABELS_MAP = Constants.INTERVAL_LABELS_MAP
+export const INTERVAL_SHORTHAND_MAP = Constants.INTERVAL_SHORTHAND_MAP

@@ -1,3 +1,4 @@
+import * as React from 'react'
 import { Stripe } from '@stripe/stripe-js'
 
 export interface ICustomerParams {
@@ -47,6 +48,23 @@ export interface IAdmin {
   clientKey: string
 }
 
+export interface IRecurring {
+  interval: string
+}
+
+export interface IPrice {
+  id: string
+  currency: string
+  recurring: IRecurring | null
+}
+
+export interface IProduct {
+  id: string
+  name: string
+  description?: string
+  prices?: IPrice[]
+}
+
 export interface IHighlight {
   price?: string
   product?: string
@@ -81,6 +99,7 @@ export interface IFormData {
 export interface IValues {
   admin: IAdmin
   form: IFormData
+  products: IProduct[]
 }
 
 export interface IErrors {
@@ -98,6 +117,13 @@ export interface IPriceBlocsProviderValue {
   setFieldValue: (path: string, value: any) => any
   refetch: () => void
   checkout: ({ prices }: ICheckoutProps, stripe: Stripe | null) => void
+}
+
+export interface IPriceBlocsContext {
+  Context: React.Context<null>
+  ContextProvider: IPriceBlocsProvider | React.Provider<null>
+  ContextConsumer: React.Consumer<null>
+  useContext: () => IPriceBlocsProviderValue
 }
 
 export interface IPriceBlocsProvider extends React.FC {
@@ -124,4 +150,50 @@ export interface IWithStripeContextProps {
 
 export interface IAuthHeaders {
   [key: string]: string
+}
+
+export interface IProductConfig {
+  [key: string]: {
+    enabled: boolean
+  } | null
+}
+
+export interface IFeature {
+  title: string
+  tooltip: string | null
+  product_config: IProductConfig
+}
+
+export interface IFeatureGroup {
+  title: string
+  features: IFeature[]
+}
+
+export interface IFeatureTableHeader {
+  id: string
+  title: string
+}
+
+export interface IFeatureTableGroupColumn {
+  header: string
+  accessor?: string
+}
+
+export interface IFeatureTableGroupRowTitle {
+  value: string
+  tooltip: string
+}
+
+export interface IFeatureTableGroupRow {
+  [key: string]: IProductConfig | null | IFeatureTableGroupRowTitle | boolean
+}
+
+export interface IFeatureTableGroup {
+  columns: IFeatureTableGroupColumn[]
+  rows: IFeatureTableGroupRow[]
+}
+
+export interface IProductsFeatureTable {
+  header: IFeatureTableHeader[]
+  groups: IFeatureTableGroup[]
 }
