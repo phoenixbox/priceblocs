@@ -19,6 +19,7 @@ import {
 import { fetchConfig, createSession, prepareCheckoutData } from './request'
 import * as Hooks from './hooks'
 import * as Utils from './utils'
+import * as Constants from './constants'
 
 const createUseContext = (
   contextProviderWrapperCreator: (
@@ -233,3 +234,10 @@ export const useActiveProductPrice = Hooks.useActiveProductPrice
 export const getActiveProductPrice = Utils.getActiveProductPrice
 export const getProductFeatures = Utils.getProductFeatures
 export const getProductsFeaturesTable = Utils.getProductsFeaturesTable
+
+/**
+ * Constants
+ */
+export const RECURRING_INTERVALS = Constants.RECURRING_INTERVALS
+export const INTERVAL_LABELS_MAP = Constants.INTERVAL_LABELS_MAP
+export const INTERVAL_SHORTHAND_MAP = Constants.INTERVAL_SHORTHAND_MAP
