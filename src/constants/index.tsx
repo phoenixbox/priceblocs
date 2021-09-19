@@ -37,11 +37,5 @@ export const INTERVAL_SHORTHAND_MAP = {
   [RECURRING_INTERVALS.DAY]: 'day',
   [RECURRING_INTERVALS.WEEK]: 'wk',
   [RECURRING_INTERVALS.MONTH]: 'mo',
-  /**
-   * The selection of shorthand should alternate between how billing is presented
-   * - billing_presentation_type
-   * - (month) - $25 per month, when billed yearly.
-   * - (interval) - $300 per year
-   */
   [RECURRING_INTERVALS.YEAR]: 'mo',
 }
