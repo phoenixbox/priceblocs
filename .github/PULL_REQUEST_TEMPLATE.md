@@ -1,3 +1,7 @@
+```
+Make sure to appropriately bump the version number
+```
+
 #### What's this PR do?
 
 #### Where should the reviewer start?
