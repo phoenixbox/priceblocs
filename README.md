@@ -78,19 +78,19 @@ export default () => {
 | success_url  | Redirect location after a successful checkout                |
 | cancel_url   | Redirect location if a user cancels current checkout session |
 | return_url   | The url of the location                                      |
-| presentation | The url of the location                                      |
+| presentation | Control presentation of the response                         |
 
 #### Present
 
 - Once initialized, you will be able to access your fetched data via the `usePriceBlocsContext` context hook
 - There are a variety of fields to help you present, update and initiate checkout
 
-| Key           | Type     | Description                                                               |
-| ------------- | -------- | ------------------------------------------------------------------------- |
-| values        | Object   | Core pricing resources like products and featureGroups etc.               |
-| form          | Object   | Form state values like currencies and intervals to help with presentation |
-| checkout      | Function | Start a checkout session                                                  |
-| setFieldValue | Function | Update any of the context values                                          |
+| Key                 | Type     | Description                                                               |
+| ------------------- | -------- | ------------------------------------------------------------------------- |
+| values              | Object   | Core pricing resources like products and featureGroups etc.               |
+| [form](#form-shape) | Object   | Form state values like currencies and intervals to help with presentation |
+| checkout            | Function | Start a checkout session                                                  |
+| setFieldValue       | Function | Update any of the context values                                          |
 
 ```javascript
 import { usePriceBlocsContext, getActiveProductPrice } from 'priceblocs'
@@ -138,3 +138,13 @@ const { checkout } = usePriceBlocsContext()
 
 <button onClick={() => checkout({ prices: [price.id] })}>Buy Now</button>
 ```
+
+##### Form shape
+
+| Key          | Description                                             |
+| ------------ | ------------------------------------------------------- |
+| interval     | The default interval based on prices in config response |
+| intervals    | Set of intervals for prices in response                 |
+| currency     | The default currency based on prices in config response |
+| currencies   | Set of intervals for prices in response                 |
+| presentation | Presentation values for form                            |
