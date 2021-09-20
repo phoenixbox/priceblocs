@@ -28,7 +28,8 @@ There are 3 steps to adding prices and checkout to your app:
 
 - [Setup](#setup)
   - Wrap any part of your app with an authenticated PriceBlocs HOC
-  - Pass an `api_key`, `prices` and whatever other configuration options you need
+  - Pass an `api_key` and a set of `prices
+    - Additional checkout and customer [configuration options](#props) can also be passed
 - [Present](#present)
   - Access your fetched data via context hooks and use it to present purchase options to your customers
 - [Checkout](#checkout)
@@ -37,7 +38,7 @@ There are 3 steps to adding prices and checkout to your app:
 ### Setup
 
 - Import `PriceBlocs` and initialize it with both:
-  - `api_key`: your PriceBlocs account API key
+  - `api_key`: your PriceBlocs publishable API key
   - `prices`: your set of prices you want to show to customers
 - You can also pass additional checkout configuration options like a customer id / email
 
@@ -48,7 +49,6 @@ export default () => {
   const props = {
     api_key: 'YOUR_PRICE_BLOCS_API_KEY',
     prices: ['p_123', 'p_456'],
-    email: 'some.customer@email.com',
   }
 
   return (
@@ -69,21 +69,15 @@ export default () => {
 
 #### Props
 
-**Required**
-
-| Key     | String | Description                     |
-| ------- | ------ | ------------------------------- |
-| api_key | string | Your PriceBlocs account API key |
-
-**Optional**
-
-| Key          | Description                                                  |
-| ------------ | ------------------------------------------------------------ |
-| prices       | Array of prices to fetch                                     |
-| success_url  | Redirect location after a successful checkout                |
-| cancel_url   | Redirect location if a user cancels current checkout session |
-| return_url   | The url of the location                                      |
-| presentation | Control presentation of the response                         |
+| Key          | Required | Type   | Description                                                                                                                                                                    | Example                       |
+| ------------ | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------- |
+| api_key      | Yes      | String | One of your PriceBlocs publishable API key                                                                                                                                     | PB_pk_test_sRADszm...         |
+| prices       | Yes      | Array  | Array of prices to fetch                                                                                                                                                       | ['p_123', 'p_456']            |
+| success_url  | No       | String | Redirect location after a successful checkout                                                                                                                                  | https://your-site.com/success |
+| cancel_url   | No       | String | Redirect location if a user cancels their current checkout session                                                                                                             | https://your-site.com/cancel  |
+| customer     | No       | String | Stripe customer id                                                                                                                                                             | cu_123                        |
+| email        | No       | String | Email for your customer customer. If there is a matching customer within you Stripe account, we will use this to initiate the checkout session in the context of that customer | some.one@email.com            |
+| presentation | No       | Object | Control the presentation of the response                                                                                                                                       | {order: 'desc'}               |
 
 ### Present
 
