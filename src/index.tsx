@@ -26,6 +26,9 @@ const createUseContext = (
     provider: IPriceBlocsProvider
   ) => IPriceBlocsProvider
 ): IPriceBlocsContext => {
+  /**
+   * Test out option argument
+   */
   const Context = React.createContext<null>(null)
   const useContext = () => React.useContext(Context)
   let ContextProvider
@@ -99,7 +102,7 @@ export const {
     (contextProps: IPriceBlocsContextProps): any => {
       const {
         children,
-        apiKey,
+        api_key,
         customer,
         email,
         customer_email,
@@ -130,7 +133,7 @@ export const {
               ...commonCustomerParams,
               prices,
             } as IFetchConfigParams
-            const { data, ...remainder } = await fetchConfig(apiKey, fetchData)
+            const { data, ...remainder } = await fetchConfig(api_key, fetchData)
 
             setMetadata(remainder)
             setValues(data)
@@ -173,7 +176,7 @@ export const {
 
         setIsSubmitting(true)
         try {
-          const response = await createSession(apiKey, checkoutData)
+          const response = await createSession(api_key, checkoutData)
 
           stripe.redirectToCheckout({
             sessionId: response.id,
