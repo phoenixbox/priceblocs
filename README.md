@@ -39,7 +39,7 @@ There are 3 steps to adding prices and checkout to your app:
 
 - Import `PriceBlocs` and initialize it with both:
   - `api_key`: your PriceBlocs publishable API key
-  - `prices`: your set of prices you want to show to customers
+  - `prices`: set of prices you want to show to customers
 - You can also pass additional checkout configuration options like a customer id / email
 
 ```javascript
@@ -47,7 +47,7 @@ import { PriceBlocs } from 'priceblocs'
 
 export default () => {
   const props = {
-    api_key: 'YOUR_PRICE_BLOCS_API_KEY',
+    api_key: 'PRICE_BLOCS_PUB_KEY',
     prices: ['p_123', 'p_456'],
   }
 
@@ -58,9 +58,8 @@ export default () => {
           return <Loader />
         } else if (values && values.products && values.products.length > 0) {
           return <PricingTable />
-        } else {
-          return <span />
         }
+        return null
       }}
     </PriceBlocs>
   )
@@ -72,7 +71,7 @@ export default () => {
 | Key          | Required | Type   | Description                                                                                                                                                                    | Example                       |
 | ------------ | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------- |
 | api_key      | Yes      | String | One of your PriceBlocs publishable API key                                                                                                                                     | PB_pk_test_sRADszm...         |
-| prices       | Yes      | Array  | Array of prices to fetch                                                                                                                                                       | ['p_123', 'p_456']            |
+| prices       | Yes      | Array  | Array of Stripe price ids to fetch                                                                                                                                             | ['p_123', 'p_456']            |
 | success_url  | No       | String | Redirect location after a successful checkout                                                                                                                                  | https://your-site.com/success |
 | cancel_url   | No       | String | Redirect location if a user cancels their current checkout session                                                                                                             | https://your-site.com/cancel  |
 | customer     | No       | String | Stripe customer id                                                                                                                                                             | cu_123                        |
@@ -178,7 +177,7 @@ This shape is closely aligned to the [Stripe products API](https://stripe.com/do
 | -------------------- | -------------------------- |
 | name                 | Name of the product        |
 | description          | Description of the product |
-| [prices](#price-api) | Array of prices            |
+| [prices](#price-api) | Array of Stripe prices     |
 
 ---
 
