@@ -1,4 +1,4 @@
-# PriceBlocs
+# PriceBlocs [beta]
 
 PriceBlocs makes it easy for developers to add in payments and billing management to their products through a set of context hooks and components.
 
@@ -8,8 +8,8 @@ PriceBlocs makes it easy for developers to add in payments and billing managemen
 
 ## Getting started
 
-- [API Keys] - Sign up for [PriceBlocs](https://priceblocs.com) and get your API keys.
-- [Test mode] - For local development you'll need to enable test mode
+- API Keys - Sign up for [PriceBlocs](https://priceblocs.com) and get your publishable API keys.
+- Test mode - Enable test mode from within the app to use test Stripe resources for local development.
 - [Install](#install) - Add `priceblocs` to your project
 
 Our first set of components and hooks are compatible with React, examples of which you can see below.
@@ -39,15 +39,33 @@ There are 3 steps to adding prices and checkout to your app:
 
 - Import `PriceBlocs` and initialize it with both:
   - `api_key`: your PriceBlocs publishable API key
-  - `prices`: set of prices you want to show to customers
+    - Use your `PB_pk_live_*` API key for live Stripe resources and checkout
+    - Use your `PB_pk_test_*` API key for live Stripe resources and checkout
+  - `prices`: set of prices you want to show to customers (live)
 - You can also pass additional checkout configuration options like a customer id / email
+
+##### API keys
+
+- Your PriceBlocs account can have both live and test API key sets
+- Each set of API keys has both a public and secret key
+- Only public keys should be used for client side requests - they can perform read but not write operations to Stripe
+- Only `livemode: true` keys can initiate live Stripe checkout charges
+- Your connected Stripe account must have `charges_enabled` in order to initiate a checkout session
+  - To achieve this, you will need to go throught the Stripe onboarding prompts within the app
+
+| Key name       | Livemode | Audience |
+| -------------- | -------- | -------- |
+| `PB_sk_live_*` | true     | Secret   |
+| `PB_pk_live_*` | true     | Public   |
+| `PB_sk_test_*` | false    | Secret   |
+| `PB_pk_test_*` | false    | Public   |
 
 ```javascript
 import { PriceBlocs } from 'priceblocs'
 
 export default () => {
   const props = {
-    api_key: 'PRICE_BLOCS_PUB_KEY',
+    api_key: 'PB_pk_test_oYQN',
     prices: ['p_123', 'p_456'],
   }
 
