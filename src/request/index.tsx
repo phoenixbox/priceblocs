@@ -3,6 +3,8 @@ import {
   ICheckoutData,
   IAuthHeaders,
   ICheckoutProps,
+  IBillingProps,
+  IBillingData,
 } from '../types'
 import { URLS, METHODS } from '../constants'
 
@@ -48,6 +50,16 @@ export const createSession = async (apiKey: string, data: ICheckoutData) => {
   return response.json()
 }
 
+export const createBilling = async (apiKey: string, data: IBillingData) => {
+  const response = await fetch(URLS.BILLING, {
+    method: METHODS.POST,
+    headers: getAuthHeaders(apiKey),
+    body: JSON.stringify(data),
+  })
+
+  return response.json()
+}
+
 export const prepareCheckoutData = (props: ICheckoutProps): ICheckoutData => {
   const result = {
     prices: props.prices,
@@ -67,6 +79,22 @@ export const prepareCheckoutData = (props: ICheckoutProps): ICheckoutData => {
   if (props.return_url) {
     result.return_url = props.return_url
   }
+
+  if (props.customer) {
+    result.customer = props.customer
+  } else if (props.email) {
+    result.email = props.email
+  } else if (props.customer_email) {
+    result.customer_email = props.customer_email
+  }
+
+  return result
+}
+
+export const prepareBillingData = (props: IBillingProps): IBillingData => {
+  const result = {
+    return_url: props.return_url || window.location.href,
+  } as IBillingData
 
   if (props.customer) {
     result.customer = props.customer

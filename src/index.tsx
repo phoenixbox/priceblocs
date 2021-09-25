@@ -1,13 +1,13 @@
 import * as React from 'react'
 import { clone, set } from 'lodash'
 import { Elements, useStripe } from '@stripe/react-stripe-js'
-import { loadStripe, Stripe } from '@stripe/stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
 import {
   ICheckoutProps,
   IMetadata,
   IPriceBlocsContextProps,
   IValues,
-  IErrors,
+  IPriceBlocsError,
   IPriceBlocsProviderValue,
   IPriceBlocsProvider,
   IStripeElementContextProps,
@@ -15,11 +15,14 @@ import {
   ICustomerParams,
   IFetchConfigParams,
   IPriceBlocsContext,
+  IBillingProps,
+  IError,
 } from './types'
-import { fetchConfig, createSession, prepareCheckoutData } from './request'
+import { fetchConfig } from './request'
 import * as Hooks from './hooks'
 import * as Utils from './utils'
 import * as Constants from './constants'
+import { checkout, billing } from './actions'
 
 const createUseContext = (
   contextProviderWrapperCreator: (
@@ -63,12 +66,12 @@ const WithStripeContext = ({
   }, [stripe])
 
   const initialCheckout = providerValue.checkout
+  const initialBilling = providerValue.billing
 
   const value = {
     ...providerValue,
-    checkout: async (props: ICheckoutProps) => {
-      await initialCheckout(props, stripe)
-    },
+    checkout: async (props: ICheckoutProps) => initialCheckout(props, stripe),
+    billing: async (props: IBillingProps) => initialBilling(props, stripe),
   }
 
   // @ts-ignore
@@ -111,12 +114,15 @@ export const {
         return_url,
         prices,
       } = contextProps
+
       const [metadata, setMetadata] = React.useState<IMetadata | undefined>()
       const [values, setValues] = React.useState<IValues | undefined>()
       const [loading, setLoading] = React.useState(false)
       const [ready, setReady] = React.useState(false)
       const [isSubmitting, setIsSubmitting] = React.useState(false)
-      const [errors, setErrors] = React.useState<IErrors | null>(null)
+      const [error, setError] = React.useState<
+        IPriceBlocsError | IError | null
+      >(null)
       const clientKey = values && values.admin && values.admin.clientKey
 
       const commonCustomerParams = {
@@ -138,7 +144,7 @@ export const {
             setMetadata(remainder)
             setValues(data)
           } catch (err) {
-            setErrors({ config: err })
+            setError({ message: err.message })
           }
           setLoading(false)
         }
@@ -154,39 +160,6 @@ export const {
         fetchData()
       }, [])
 
-      const checkout = async ({ prices }: ICheckoutProps, stripe: Stripe) => {
-        if (!stripe) {
-          console.error(
-            'Stripe is not initialized - ensure you have passed a valid API key'
-          )
-          return
-        }
-        if (isSubmitting) {
-          console.warn('Checkout in progress')
-          return
-        }
-        const checkoutData = prepareCheckoutData({
-          ...commonCustomerParams,
-          prices,
-          success_url,
-          cancel_url,
-          return_url,
-          metadata,
-        })
-
-        setIsSubmitting(true)
-        try {
-          const response = await createSession(api_key, checkoutData)
-
-          stripe.redirectToCheckout({
-            sessionId: response.id,
-          })
-        } catch (err) {
-          setErrors({ config: err })
-        }
-        setIsSubmitting(false)
-      }
-
       const providerValue: IPriceBlocsProviderValue = {
         ready,
         loading,
@@ -194,16 +167,39 @@ export const {
         setValues,
         setFieldValue,
         refetch: fetchData,
-        checkout,
+        checkout: checkout({
+          api_key,
+          success_url,
+          cancel_url,
+          return_url,
+          metadata,
+          isSubmitting,
+          customer,
+          customer_email,
+          email,
+          setIsSubmitting,
+          setError,
+        }),
+        billing: billing({
+          api_key,
+          return_url,
+          isSubmitting,
+          customer,
+          customer_email,
+          email,
+          setIsSubmitting,
+          setError,
+        }),
       }
+
       if (values) {
         providerValue.values = values
       }
       if (metadata) {
         providerValue.metadata = metadata
       }
-      if (errors) {
-        providerValue.errors = errors
+      if (error) {
+        providerValue.error = error
       }
 
       const content =

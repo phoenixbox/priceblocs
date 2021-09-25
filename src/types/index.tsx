@@ -7,6 +7,19 @@ export interface ICustomerParams {
   email?: string
 }
 
+type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
+  T,
+  Exclude<keyof T, Keys>
+> &
+  {
+    [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>
+  }[Keys]
+
+type IMinCustomerParams = RequireAtLeastOne<
+  ICustomerParams,
+  'customer' | 'customer_email' | 'email'
+>
+
 export interface IFetchConfigParams extends ICustomerParams {
   [key: string]: string | string[]
   prices?: string[]
@@ -14,9 +27,36 @@ export interface IFetchConfigParams extends ICustomerParams {
   session?: string
 }
 
+export interface ICheckoutActionProps extends ICustomerParams {
+  api_key: string
+  success_url?: string
+  cancel_url?: string
+  return_url?: string
+  metadata: IMetadata
+  isSubmitting: boolean
+  setIsSubmitting: (isSubmiting: boolean) => void
+  setError: (error: IPriceBlocsError | IError) => void
+}
+
 export interface ICheckoutProps {
   prices: [string]
 }
+
+export interface IBillingActionProps extends ICustomerParams {
+  api_key: string
+  return_url?: string
+  isSubmitting: boolean
+  setIsSubmitting: (isSubmiting: boolean) => void
+  setError: (error: IPriceBlocsError | IError) => void
+}
+
+export interface IBillingProps extends ICustomerParams {
+  return_url?: string
+}
+
+export type IBillingData = {
+  return_url: string
+} & IMinCustomerParams
 
 export interface IMetadata {
   id: string
@@ -102,8 +142,27 @@ export interface IValues {
   products: IProduct[]
 }
 
-export interface IErrors {
-  config: Error
+export interface IPriceBlocsError {
+  statusCode: number
+  error: string
+  message: string
+  type: string
+  headers: {
+    [key: string]: string
+  }
+  payload: {
+    [key: string]: any
+  }
+  url: string
+  method: string
+  param: string
+  docs: string
+  chat: string
+}
+
+export interface IError {
+  statusCode?: number
+  message: string
 }
 
 export interface IPriceBlocsProviderValue {
@@ -112,11 +171,15 @@ export interface IPriceBlocsProviderValue {
   isSubmitting: boolean
   values?: IValues
   metadata?: IMetadata | null
-  errors?: IErrors
+  error?: IPriceBlocsError | IError
   setValues: (values: IValues) => void
   setFieldValue: (path: string, value: any) => any
   refetch: () => void
   checkout: ({ prices }: ICheckoutProps, stripe: Stripe | null) => void
+  billing: (
+    { customer, return_url }: IBillingProps,
+    stripe: Stripe | null
+  ) => void
 }
 
 export interface IPriceBlocsContext {
