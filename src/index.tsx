@@ -12,17 +12,14 @@ import {
   IPriceBlocsProvider,
   IStripeElementContextProps,
   IWithStripeContextProps,
-  ICustomerParams,
-  IFetchConfigParams,
   IPriceBlocsContext,
   IBillingProps,
   IError,
 } from './types'
-import { fetchConfig } from './request'
 import * as Hooks from './hooks'
 import * as Utils from './utils'
 import * as Constants from './constants'
-import { checkout, billing } from './actions'
+import { checkout, billing, fetchData } from './actions'
 
 const createUseContext = (
   contextProviderWrapperCreator: (
@@ -125,39 +122,27 @@ export const {
       >(null)
       const clientKey = values && values.admin && values.admin.clientKey
 
-      const commonCustomerParams = {
-        customer,
-        customer_email,
-        email,
-      } as ICustomerParams
-
-      const fetchData = async () => {
-        if (!loading) {
-          setLoading(true)
-          try {
-            const fetchData = {
-              ...commonCustomerParams,
-              prices,
-            } as IFetchConfigParams
-            const { data, ...remainder } = await fetchConfig(api_key, fetchData)
-
-            setMetadata(remainder)
-            setValues(data)
-          } catch (err) {
-            setError({ message: err.message })
-          }
-          setLoading(false)
-        }
-      }
-
       const setFieldValue = (path: string, value: any) => {
         const updatedValues = clone(values)
         set(updatedValues as IValues, path, value)
         setValues(updatedValues)
       }
 
+      const refetch = fetchData({
+        api_key,
+        customer,
+        customer_email,
+        email,
+        loading,
+        setLoading,
+        setValues,
+        setMetadata,
+        setError,
+        prices,
+      })
+
       React.useEffect(() => {
-        fetchData()
+        refetch()
       }, [])
 
       const providerValue: IPriceBlocsProviderValue = {
@@ -166,27 +151,27 @@ export const {
         isSubmitting,
         setValues,
         setFieldValue,
-        refetch: fetchData,
+        refetch: refetch,
         checkout: checkout({
           api_key,
+          customer,
+          customer_email,
+          email,
           success_url,
           cancel_url,
           return_url,
           metadata,
           isSubmitting,
-          customer,
-          customer_email,
-          email,
           setIsSubmitting,
           setError,
         }),
         billing: billing({
           api_key,
-          return_url,
-          isSubmitting,
           customer,
           customer_email,
           email,
+          return_url,
+          isSubmitting,
           setIsSubmitting,
           setError,
         }),

@@ -27,6 +27,16 @@ export interface IFetchConfigParams extends ICustomerParams {
   session?: string
 }
 
+export interface IFetchDataActionProps extends ICustomerParams {
+  loading: boolean
+  setLoading: (loading: boolean) => void
+  setValues: (values: IValues) => void
+  setMetadata: (values: IMetadata) => void
+  setError: (error: IPriceBlocsError | IError) => void
+  api_key: string
+  prices: string[]
+}
+
 export interface ICheckoutActionProps extends ICustomerParams {
   api_key: string
   success_url?: string
@@ -39,7 +49,7 @@ export interface ICheckoutActionProps extends ICustomerParams {
 }
 
 export interface ICheckoutProps {
-  prices: [string]
+  prices: string[]
 }
 
 export interface IBillingActionProps extends ICustomerParams {
@@ -63,7 +73,7 @@ export interface IMetadata {
 }
 
 export interface ICheckoutData extends ICustomerParams {
-  prices: [string]
+  prices: string[]
   cancel_url: string
   success_url?: string
   return_url?: string
