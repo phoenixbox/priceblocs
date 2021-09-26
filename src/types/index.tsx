@@ -48,8 +48,7 @@ export interface IBillingActionProps {
   setError: (error: IPriceBlocsError | IError) => void
 }
 
-export interface IBillingProps
-  extends Pick<ICustomerParams, 'customer' | 'customer_email' | 'email'> {
+export interface IBillingProps extends Pick<ICustomerParams, 'customer'> {
   return_url?: string
 }
 
