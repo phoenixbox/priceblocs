@@ -2,32 +2,22 @@ import * as React from 'react'
 import { Stripe } from '@stripe/stripe-js'
 
 export interface ICustomerParams {
+  [key: string]: string
   customer?: string
   customer_email?: string
   email?: string
 }
 
-type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
-  T,
-  Exclude<keyof T, Keys>
-> &
-  {
-    [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>
-  }[Keys]
-
-type IMinCustomerParams = RequireAtLeastOne<
-  ICustomerParams,
-  'customer' | 'customer_email' | 'email'
->
-
-export interface IFetchConfigParams extends ICustomerParams {
+export interface IFetchConfigParams
+  extends Pick<ICustomerParams, 'customer' | 'customer_email' | 'email'> {
   [key: string]: string | string[]
   prices?: string[]
   id?: string
   session?: string
 }
 
-export interface IFetchDataActionProps extends ICustomerParams {
+export interface IFetchDataActionProps
+  extends Pick<ICustomerParams, 'customer' | 'customer_email' | 'email'> {
   api_key: string
   loading: boolean
   setLoading: (loading: boolean) => void
@@ -58,13 +48,15 @@ export interface IBillingActionProps {
   setError: (error: IPriceBlocsError | IError) => void
 }
 
-export interface IBillingProps extends ICustomerParams {
+export interface IBillingProps
+  extends Pick<ICustomerParams, 'customer' | 'customer_email' | 'email'> {
   return_url?: string
 }
 
 export type IBillingData = {
+  customer: string
   return_url: string
-} & IMinCustomerParams
+}
 
 export interface IMetadata {
   id: string
@@ -72,6 +64,7 @@ export interface IMetadata {
 
 export interface ICheckoutData
   extends Pick<ICustomerParams, 'customer' | 'customer_email'> {
+  [key: string]: string | string[]
   prices: string[]
   cancel_url: string
   success_url?: string
@@ -91,7 +84,8 @@ export interface ICheckoutProps {
   metadata: IMetadata
 }
 
-export interface IPriceBlocsContextProps extends ICustomerParams {
+export interface IPriceBlocsContextProps
+  extends Pick<ICustomerParams, 'customer' | 'customer_email' | 'email'> {
   api_key: string
   children: React.ReactNode | ((props: IPriceBlocsProviderValue) => any)
   prices?: string[]

@@ -3,22 +3,12 @@ import { Stripe } from '@stripe/stripe-js'
 import { createSession, prepareCheckoutData } from 'src/request'
 
 export default (props: ICheckoutActionProps) => {
-  const {
-    api_key,
-    success_url,
-    cancel_url,
-    return_url,
-    metadata,
-    isSubmitting,
-    customer,
-    setIsSubmitting,
-    setError,
-  } = props
+  const { api_key, isSubmitting, setIsSubmitting, setError } = props
 
   /**
    * Should allow for optional override of checkout input props here
    */
-  return async ({ prices }: ICheckoutProps, stripe: Stripe) => {
+  return async (checkout: ICheckoutProps, stripe: Stripe) => {
     if (!stripe) {
       console.error(
         'Stripe is not initialized - ensure you have passed a valid API key'
@@ -30,14 +20,7 @@ export default (props: ICheckoutActionProps) => {
       return
     }
 
-    const checkoutData = prepareCheckoutData({
-      customer,
-      prices,
-      success_url,
-      cancel_url,
-      return_url,
-      metadata,
-    })
+    const checkoutData = prepareCheckoutData(checkout, props)
 
     setIsSubmitting(true)
     try {
