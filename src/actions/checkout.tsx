@@ -11,8 +11,6 @@ export default (props: ICheckoutActionProps) => {
     metadata,
     isSubmitting,
     customer,
-    customer_email,
-    email,
     setIsSubmitting,
     setError,
   } = props
@@ -34,8 +32,6 @@ export default (props: ICheckoutActionProps) => {
 
     const checkoutData = prepareCheckoutData({
       customer,
-      customer_email,
-      email,
       prices,
       success_url,
       cancel_url,

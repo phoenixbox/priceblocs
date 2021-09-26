@@ -81,11 +81,11 @@ export const prepareCheckoutData = (props: ICheckoutProps): ICheckoutData => {
   }
 
   if (props.customer) {
-    result.customer = props.customer
-  } else if (props.email) {
-    result.email = props.email
-  } else if (props.customer_email) {
-    result.customer_email = props.customer_email
+    if (props.customer.id) {
+      result.customer = props.customer.id
+    } else if (props.customer.email) {
+      result.customer_email = props.customer.email
+    }
   }
 
   return result

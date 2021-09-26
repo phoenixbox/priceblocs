@@ -28,32 +28,30 @@ export interface IFetchConfigParams extends ICustomerParams {
 }
 
 export interface IFetchDataActionProps extends ICustomerParams {
+  api_key: string
   loading: boolean
   setLoading: (loading: boolean) => void
   setValues: (values: IValues) => void
   setMetadata: (values: IMetadata) => void
   setError: (error: IPriceBlocsError | IError) => void
-  api_key: string
   prices: string[]
 }
 
-export interface ICheckoutActionProps extends ICustomerParams {
+export interface ICheckoutActionProps {
   api_key: string
   success_url?: string
   cancel_url?: string
   return_url?: string
+  customer?: ICustomer
   metadata: IMetadata
   isSubmitting: boolean
   setIsSubmitting: (isSubmiting: boolean) => void
   setError: (error: IPriceBlocsError | IError) => void
 }
 
-export interface ICheckoutProps {
-  prices: string[]
-}
-
-export interface IBillingActionProps extends ICustomerParams {
+export interface IBillingActionProps {
   api_key: string
+  customer?: ICustomer
   return_url?: string
   isSubmitting: boolean
   setIsSubmitting: (isSubmiting: boolean) => void
@@ -72,7 +70,8 @@ export interface IMetadata {
   id: string
 }
 
-export interface ICheckoutData extends ICustomerParams {
+export interface ICheckoutData
+  extends Pick<ICustomerParams, 'customer' | 'customer_email'> {
   prices: string[]
   cancel_url: string
   success_url?: string
@@ -81,13 +80,20 @@ export interface ICheckoutData extends ICustomerParams {
   session?: string
 }
 
-export interface ICheckoutProps extends ICheckoutData {
+export interface ICheckoutProps {
+  prices: string[]
+  cancel_url: string
+  success_url?: string
+  return_url?: string
+  id?: string
+  customer?: ICustomer
+  session?: string
   metadata: IMetadata
 }
 
 export interface IPriceBlocsContextProps extends ICustomerParams {
-  children: React.ReactNode | ((props: IPriceBlocsProviderValue) => any)
   api_key: string
+  children: React.ReactNode | ((props: IPriceBlocsProviderValue) => any)
   prices?: string[]
   success_url?: string
   cancel_url?: string
@@ -146,8 +152,14 @@ export interface IFormData {
   presentation: IPresentation
 }
 
+export interface ICustomer {
+  id?: string
+  email?: string
+}
+
 export interface IValues {
   admin: IAdmin
+  customer: ICustomer
   form: IFormData
   products: IProduct[]
 }

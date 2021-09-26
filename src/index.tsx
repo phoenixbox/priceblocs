@@ -100,17 +100,8 @@ export const {
 } = createUseContext(
   (Provider: IPriceBlocsProvider) =>
     (contextProps: IPriceBlocsContextProps): any => {
-      const {
-        children,
-        api_key,
-        customer,
-        email,
-        customer_email,
-        success_url,
-        cancel_url,
-        return_url,
-        prices,
-      } = contextProps
+      const { children, api_key, success_url, cancel_url, return_url, prices } =
+        contextProps
 
       const [metadata, setMetadata] = React.useState<IMetadata | undefined>()
       const [values, setValues] = React.useState<IValues | undefined>()
@@ -127,18 +118,19 @@ export const {
         set(updatedValues as IValues, path, value)
         setValues(updatedValues)
       }
+      const customer = values ? values.customer : null
 
       const refetch = fetchData({
         api_key,
-        customer,
-        customer_email,
-        email,
+        customer: contextProps.customer,
+        customer_email: contextProps.customer_email,
+        email: contextProps.email,
+        prices,
         loading,
         setLoading,
         setValues,
         setMetadata,
         setError,
-        prices,
       })
 
       React.useEffect(() => {
@@ -155,8 +147,6 @@ export const {
         checkout: checkout({
           api_key,
           customer,
-          customer_email,
-          email,
           success_url,
           cancel_url,
           return_url,
@@ -168,8 +158,6 @@ export const {
         billing: billing({
           api_key,
           customer,
-          customer_email,
-          email,
           return_url,
           isSubmitting,
           setIsSubmitting,

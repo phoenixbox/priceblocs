@@ -24,7 +24,9 @@ export default (props: IBillingActionProps) => {
       customer:
         billingProps && billingProps.customer
           ? billingProps.customer
-          : props.customer,
+          : props.customer && props.customer.id
+          ? props.customer.id
+          : null,
       return_url:
         billingProps && billingProps.return_url
           ? billingProps.return_url
