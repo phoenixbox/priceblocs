@@ -78,11 +78,11 @@ export const prepareCheckoutData = (
   checkout: ICheckoutProps | string,
   props: ICheckoutActionProps
 ): ICheckoutData => {
-  const defaultCancelUrl = window.location.href
+  const currentUrl = window.location.href
   if (typeof checkout === 'string') {
     const result = {
       prices: [checkout],
-      cancel_url: defaultCancelUrl,
+      cancel_url: currentUrl,
     } as ICheckoutData
 
     if (props.success_url) {
@@ -91,8 +91,9 @@ export const prepareCheckoutData = (
     if (props.cancel_url) {
       result.cancel_url = props.cancel_url
     }
-    if (props.return_url) {
-      result.return_url = props.return_url
+    const returnUrl = props.return_url || currentUrl
+    if (returnUrl) {
+      result.return_url = returnUrl
     }
 
     const customer = getCustomerParams(props.customer)
@@ -104,7 +105,7 @@ export const prepareCheckoutData = (
   } else {
     const result = {
       prices: typeof checkout === 'string' ? [checkout] : checkout.prices,
-      cancel_url: window.location.href,
+      cancel_url: currentUrl,
     } as ICheckoutData
 
     if (props.metadata && props.metadata.id) {
@@ -121,7 +122,7 @@ export const prepareCheckoutData = (
       result.cancel_url = cancelUrl
     }
 
-    const returnUrl = checkout.return_url || props.return_url
+    const returnUrl = checkout.return_url || props.return_url || currentUrl
     if (returnUrl) {
       result.return_url = returnUrl
     }
