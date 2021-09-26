@@ -3,6 +3,11 @@ import {
   ICheckoutData,
   IAuthHeaders,
   ICheckoutProps,
+  IBillingProps,
+  IBillingData,
+  ICheckoutActionProps,
+  ICustomerParams,
+  ICustomer,
 } from '../types'
 import { URLS, METHODS } from '../constants'
 
@@ -48,33 +53,89 @@ export const createSession = async (apiKey: string, data: ICheckoutData) => {
   return response.json()
 }
 
-export const prepareCheckoutData = (props: ICheckoutProps): ICheckoutData => {
-  const result = {
-    prices: props.prices,
-  } as ICheckoutData
+export const createBilling = async (apiKey: string, data: IBillingData) => {
+  const response = await fetch(URLS.BILLING, {
+    method: METHODS.POST,
+    headers: getAuthHeaders(apiKey),
+    body: JSON.stringify(data),
+  })
 
-  if (props.metadata && props.metadata.id) {
-    result.id = props.metadata.id
-  }
-  if (props.success_url) {
-    result.success_url = props.success_url
-  }
-  if (props.cancel_url) {
-    result.cancel_url = props.cancel_url
-  } else {
-    result.cancel_url = window.location.href
-  }
-  if (props.return_url) {
-    result.return_url = props.return_url
-  }
+  return response.json()
+}
 
-  if (props.customer) {
-    result.customer = props.customer
-  } else if (props.email) {
-    result.email = props.email
-  } else if (props.customer_email) {
-    result.customer_email = props.customer_email
+const getCustomerParams = (customer: ICustomer): ICustomerParams => {
+  const result = {} as ICustomerParams
+  if (customer.id) {
+    result.customer = customer.id
+  } else if (customer.email) {
+    result.customer_email = customer.email
   }
 
   return result
 }
+
+export const prepareCheckoutData = (
+  checkout: ICheckoutProps | string,
+  props: ICheckoutActionProps
+): ICheckoutData => {
+  const defaultCancelUrl = window.location.href
+  if (typeof checkout === 'string') {
+    const result = {
+      prices: [checkout],
+      cancel_url: defaultCancelUrl,
+    } as ICheckoutData
+
+    if (props.success_url) {
+      result.success_url = props.success_url
+    }
+    if (props.cancel_url) {
+      result.cancel_url = props.cancel_url
+    }
+    if (props.return_url) {
+      result.return_url = props.return_url
+    }
+
+    const customer = getCustomerParams(props.customer)
+    for (const key in customer) {
+      result[key] = customer[key]
+    }
+
+    return result
+  } else {
+    const result = {
+      prices: typeof checkout === 'string' ? [checkout] : checkout.prices,
+      cancel_url: window.location.href,
+    } as ICheckoutData
+
+    if (props.metadata && props.metadata.id) {
+      result.id = props.metadata.id
+    }
+
+    const successUrl = checkout.success_url || props.success_url
+    if (successUrl) {
+      result.success_url = successUrl
+    }
+
+    const cancelUrl = checkout.cancel_url || props.cancel_url
+    if (cancelUrl) {
+      result.cancel_url = cancelUrl
+    }
+
+    const returnUrl = checkout.return_url || props.return_url
+    if (returnUrl) {
+      result.return_url = returnUrl
+    }
+
+    const customer = getCustomerParams(checkout.customer || props.customer)
+    for (const key in customer) {
+      result[key] = customer[key]
+    }
+
+    return result
+  }
+}
+
+export const prepareBillingData = (props: IBillingProps): IBillingData => ({
+  customer: props.customer,
+  return_url: props.return_url || window.location.href,
+})

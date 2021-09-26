@@ -2,28 +2,69 @@ import * as React from 'react'
 import { Stripe } from '@stripe/stripe-js'
 
 export interface ICustomerParams {
+  [key: string]: string
   customer?: string
   customer_email?: string
   email?: string
 }
 
-export interface IFetchConfigParams extends ICustomerParams {
+export interface IFetchConfigParams
+  extends Pick<ICustomerParams, 'customer' | 'customer_email' | 'email'> {
   [key: string]: string | string[]
   prices?: string[]
   id?: string
   session?: string
 }
 
-export interface ICheckoutProps {
-  prices: [string]
+export interface IFetchDataActionProps
+  extends Pick<ICustomerParams, 'customer' | 'customer_email' | 'email'> {
+  api_key: string
+  loading: boolean
+  setLoading: (loading: boolean) => void
+  setValues: (values: IValues) => void
+  setMetadata: (values: IMetadata) => void
+  setError: (error: IPriceBlocsError | IError) => void
+  prices: string[]
+}
+
+export interface ICheckoutActionProps {
+  api_key: string
+  success_url?: string
+  cancel_url?: string
+  return_url?: string
+  customer?: ICustomer
+  metadata: IMetadata
+  isSubmitting: boolean
+  setIsSubmitting: (isSubmiting: boolean) => void
+  setError: (error: IPriceBlocsError | IError) => void
+}
+
+export interface IBillingActionProps {
+  api_key: string
+  customer?: ICustomer
+  return_url?: string
+  isSubmitting: boolean
+  setIsSubmitting: (isSubmiting: boolean) => void
+  setError: (error: IPriceBlocsError | IError) => void
+}
+
+export interface IBillingProps extends Pick<ICustomerParams, 'customer'> {
+  return_url?: string
+}
+
+export type IBillingData = {
+  customer: string
+  return_url: string
 }
 
 export interface IMetadata {
   id: string
 }
 
-export interface ICheckoutData extends ICustomerParams {
-  prices: [string]
+export interface ICheckoutData
+  extends Pick<ICustomerParams, 'customer' | 'customer_email'> {
+  [key: string]: string | string[]
+  prices: string[]
   cancel_url: string
   success_url?: string
   return_url?: string
@@ -31,13 +72,21 @@ export interface ICheckoutData extends ICustomerParams {
   session?: string
 }
 
-export interface ICheckoutProps extends ICheckoutData {
+export interface ICheckoutProps {
+  prices: string[]
+  cancel_url: string
+  success_url?: string
+  return_url?: string
+  id?: string
+  customer?: ICustomer
+  session?: string
   metadata: IMetadata
 }
 
-export interface IPriceBlocsContextProps extends ICustomerParams {
-  children: React.ReactNode | ((props: IPriceBlocsProviderValue) => any)
+export interface IPriceBlocsContextProps
+  extends Pick<ICustomerParams, 'customer' | 'customer_email' | 'email'> {
   api_key: string
+  children: React.ReactNode | ((props: IPriceBlocsProviderValue) => any)
   prices?: string[]
   success_url?: string
   cancel_url?: string
@@ -96,14 +145,39 @@ export interface IFormData {
   presentation: IPresentation
 }
 
+export interface ICustomer {
+  id?: string
+  email?: string
+}
+
 export interface IValues {
   admin: IAdmin
+  customer: ICustomer
   form: IFormData
   products: IProduct[]
 }
 
-export interface IErrors {
-  config: Error
+export interface IPriceBlocsError {
+  statusCode: number
+  error: string
+  message: string
+  type: string
+  headers: {
+    [key: string]: string
+  }
+  payload: {
+    [key: string]: any
+  }
+  url: string
+  method: string
+  param: string
+  docs: string
+  chat: string
+}
+
+export interface IError {
+  statusCode?: number
+  message: string
 }
 
 export interface IPriceBlocsProviderValue {
@@ -112,11 +186,15 @@ export interface IPriceBlocsProviderValue {
   isSubmitting: boolean
   values?: IValues
   metadata?: IMetadata | null
-  errors?: IErrors
+  error?: IPriceBlocsError | IError
   setValues: (values: IValues) => void
   setFieldValue: (path: string, value: any) => any
   refetch: () => void
   checkout: ({ prices }: ICheckoutProps, stripe: Stripe | null) => void
+  billing: (
+    { customer, return_url }: IBillingProps,
+    stripe: Stripe | null
+  ) => void
 }
 
 export interface IPriceBlocsContext {

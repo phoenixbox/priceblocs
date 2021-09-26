@@ -1,25 +1,25 @@
 import * as React from 'react'
 import { clone, set } from 'lodash'
 import { Elements, useStripe } from '@stripe/react-stripe-js'
-import { loadStripe, Stripe } from '@stripe/stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
 import {
   ICheckoutProps,
   IMetadata,
   IPriceBlocsContextProps,
   IValues,
-  IErrors,
+  IPriceBlocsError,
   IPriceBlocsProviderValue,
   IPriceBlocsProvider,
   IStripeElementContextProps,
   IWithStripeContextProps,
-  ICustomerParams,
-  IFetchConfigParams,
   IPriceBlocsContext,
+  IBillingProps,
+  IError,
 } from './types'
-import { fetchConfig, createSession, prepareCheckoutData } from './request'
 import * as Hooks from './hooks'
 import * as Utils from './utils'
 import * as Constants from './constants'
+import { checkout, billing, fetchData } from './actions'
 
 const createUseContext = (
   contextProviderWrapperCreator: (
@@ -63,12 +63,12 @@ const WithStripeContext = ({
   }, [stripe])
 
   const initialCheckout = providerValue.checkout
+  const initialBilling = providerValue.billing
 
   const value = {
     ...providerValue,
-    checkout: async (props: ICheckoutProps) => {
-      await initialCheckout(props, stripe)
-    },
+    checkout: async (props: ICheckoutProps) => initialCheckout(props, stripe),
+    billing: async (props: IBillingProps) => initialBilling(props, stripe),
   }
 
   // @ts-ignore
@@ -100,92 +100,42 @@ export const {
 } = createUseContext(
   (Provider: IPriceBlocsProvider) =>
     (contextProps: IPriceBlocsContextProps): any => {
-      const {
-        children,
-        api_key,
-        customer,
-        email,
-        customer_email,
-        success_url,
-        cancel_url,
-        return_url,
-        prices,
-      } = contextProps
+      const { children, api_key, success_url, cancel_url, return_url, prices } =
+        contextProps
+
       const [metadata, setMetadata] = React.useState<IMetadata | undefined>()
       const [values, setValues] = React.useState<IValues | undefined>()
       const [loading, setLoading] = React.useState(false)
       const [ready, setReady] = React.useState(false)
       const [isSubmitting, setIsSubmitting] = React.useState(false)
-      const [errors, setErrors] = React.useState<IErrors | null>(null)
+      const [error, setError] = React.useState<
+        IPriceBlocsError | IError | null
+      >(null)
       const clientKey = values && values.admin && values.admin.clientKey
-
-      const commonCustomerParams = {
-        customer,
-        customer_email,
-        email,
-      } as ICustomerParams
-
-      const fetchData = async () => {
-        if (!loading) {
-          setLoading(true)
-          try {
-            const fetchData = {
-              ...commonCustomerParams,
-              prices,
-            } as IFetchConfigParams
-            const { data, ...remainder } = await fetchConfig(api_key, fetchData)
-
-            setMetadata(remainder)
-            setValues(data)
-          } catch (err) {
-            setErrors({ config: err })
-          }
-          setLoading(false)
-        }
-      }
 
       const setFieldValue = (path: string, value: any) => {
         const updatedValues = clone(values)
         set(updatedValues as IValues, path, value)
         setValues(updatedValues)
       }
+      const customer = values ? values.customer : null
+
+      const refetch = fetchData({
+        api_key,
+        customer: contextProps.customer,
+        customer_email: contextProps.customer_email,
+        email: contextProps.email,
+        prices,
+        loading,
+        setLoading,
+        setValues,
+        setMetadata,
+        setError,
+      })
 
       React.useEffect(() => {
-        fetchData()
+        refetch()
       }, [])
-
-      const checkout = async ({ prices }: ICheckoutProps, stripe: Stripe) => {
-        if (!stripe) {
-          console.error(
-            'Stripe is not initialized - ensure you have passed a valid API key'
-          )
-          return
-        }
-        if (isSubmitting) {
-          console.warn('Checkout in progress')
-          return
-        }
-        const checkoutData = prepareCheckoutData({
-          ...commonCustomerParams,
-          prices,
-          success_url,
-          cancel_url,
-          return_url,
-          metadata,
-        })
-
-        setIsSubmitting(true)
-        try {
-          const response = await createSession(api_key, checkoutData)
-
-          stripe.redirectToCheckout({
-            sessionId: response.id,
-          })
-        } catch (err) {
-          setErrors({ config: err })
-        }
-        setIsSubmitting(false)
-      }
 
       const providerValue: IPriceBlocsProviderValue = {
         ready,
@@ -193,17 +143,36 @@ export const {
         isSubmitting,
         setValues,
         setFieldValue,
-        refetch: fetchData,
-        checkout,
+        refetch: refetch,
+        checkout: checkout({
+          api_key,
+          customer,
+          success_url,
+          cancel_url,
+          return_url,
+          metadata,
+          isSubmitting,
+          setIsSubmitting,
+          setError,
+        }),
+        billing: billing({
+          api_key,
+          customer,
+          return_url,
+          isSubmitting,
+          setIsSubmitting,
+          setError,
+        }),
       }
+
       if (values) {
         providerValue.values = values
       }
       if (metadata) {
         providerValue.metadata = metadata
       }
-      if (errors) {
-        providerValue.errors = errors
+      if (error) {
+        providerValue.error = error
       }
 
       const content =
