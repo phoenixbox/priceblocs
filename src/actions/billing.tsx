@@ -33,6 +33,13 @@ export default (props: IBillingActionProps) => {
           : props.return_url,
     })
 
+    if (!billingData.customer) {
+      console.error(
+        'A valid customer id is required to start a billing portal session'
+      )
+      return
+    }
+
     setIsSubmitting(true)
     try {
       const billingSession = await createBilling(api_key, billingData)
