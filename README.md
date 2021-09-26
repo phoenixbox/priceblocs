@@ -101,12 +101,13 @@ export default () => {
 - Once initialized, you will be able to access your fetched data via the `usePriceBlocsContext` context hook
 - There are a variety of fields to help you present, update and initiate checkout
 
-| Key                   | Type     | Description                                                               |
-| --------------------- | -------- | ------------------------------------------------------------------------- |
-| [values](#values-api) | Object   | Core pricing resources like products and featureGroups etc.               |
-| [form](#form-api)     | Object   | Form state values like currencies and intervals to help with presentation |
-| checkout              | Function | Start a checkout session                                                  |
-| setFieldValue         | Function | Update any of the context values                                          |
+| Key                             | Type     | Description                                                               |
+| ------------------------------- | -------- | ------------------------------------------------------------------------- |
+| [values](#values-api)           | Object   | Core pricing resources like products and featureGroups etc.               |
+| [form](#form-api)               | Object   | Form state values like currencies and intervals to help with presentation |
+| [checkout](#checkout)           | Function | Start a checkout session                                                  |
+| [billing](#billing)             | Function | Start a billing portal session for the provided customer                  |
+| [setFieldValue](#setfieldvalue) | Function | Update any of the context values                                          |
 
 ```javascript
 import { usePriceBlocsContext, getActiveProductPrice } from 'priceblocs'
@@ -143,12 +144,45 @@ const PricingTable = () => {
 
 ### Checkout
 
-- Use the `checkout` function from context to start a checkout session by passing a single price as an argument
+- Use the `checkout` function from context to start a checkout session by passing a single price or collection of prices as an argument
 
 ```javascript
 const { checkout } = usePriceBlocsContext()
 
-<button onClick={() => checkout({ prices: [price.id] })}>Buy Now</button>
+// Single price
+<button onClick={() => checkout(price.id)}>Buy Now</button>
+// Price collection
+<button onClick={() => checkout({prices: [price.id]})}>Buy Now</button>
+```
+
+### Billing
+
+- Use the `billing` function from context to start a new Stripe billing portal session
+- A valid customer id is required to start a new session
+- By default, we will use the customer in context if you have initiated PriceBlocs with a valid customer
+- Otherwise you can pass a customer parameter into the billing call
+
+```javascript
+const { billing } = usePriceBlocsContext()
+
+// Use default customer if present
+<button onClick={billing}>Manage billing</button>
+// Provide a customer to the billing call
+<button onClick={() => billing({ customer: 'cus_123' })}>Manage billing</button>
+```
+
+### setFieldValue
+
+- You can use the `setFieldValue` function to update any of the state in context
+- This can be useful for updating values such as the `interval` or `currency` within the `form` state to assist with presentation logic
+- You can pass a dot path to target nested fields for updates
+
+```javascript
+const {
+  setFieldValue,
+} = usePriceBlocsContext()
+
+<button onClick={() => setFieldValue('form.interval', 'month')}>Show monthly prices</button>
 ```
 
 ## API
