@@ -1,7 +1,7 @@
 {
-  "name": "priceblocs",
+  "name": "@priceblocs/headless",
   "version": "0.0.12",
-  "description": "PriceBlocs context components",
+  "description": "PriceBlocs headless components",
   "author": "phoenixbox",
   "license": "MIT",
   "repository": "phoenixbox/priceblocs",

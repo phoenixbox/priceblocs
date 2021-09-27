@@ -1,4 +1,5 @@
-const API_ROOT = 'https://api.priceblocs.com'
+// const API_ROOT = 'https://api.priceblocs.com'
+const API_ROOT = 'http://localhost:9000'
 
 export const URLS = {
   PRICING: `${API_ROOT}/v1/config/pricing`,
