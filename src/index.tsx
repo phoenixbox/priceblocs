@@ -71,7 +71,6 @@ const WithStripeContext = ({
     billing: async (props: IBillingProps) => initialBilling(props, stripe),
   }
 
-  // @ts-ignore
   return <Provider value={value}>{children}</Provider>
 }
 
@@ -189,7 +188,6 @@ export const {
           {content}
         </StripeElementContainer>
       ) : (
-        // @ts-ignore
         <Provider value={providerValue}>{content}</Provider>
       )
     }
